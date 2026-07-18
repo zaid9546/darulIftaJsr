@@ -26,12 +26,24 @@ app.use(helmet({
 }));
 
 // ── CORS ──────────────────────────────────────────────
-app.use(cors({
-  origin:      process.env.CLIENT_URL || 'http://localhost:5173',
-  credentials: true,            // Allow cookies cross-origin
-  methods:     ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization'],
-}));
+const allowedOrigins = [
+  "http://localhost:5173",
+  "https://darul-ifta-jsr.vercel.app",
+];
+
+app.use(
+  cors({
+    origin(origin, callback) {
+      if (!origin || allowedOrigins.includes(origin)) {
+        return callback(null, true);
+      }
+      return callback(new Error("Not allowed by CORS"));
+    },
+    credentials: true,
+    methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
+    allowedHeaders: ["Content-Type", "Authorization"],
+  })
+);
 
 // ── Rate Limiting ─────────────────────────────────────
 const limiter = rateLimit({
